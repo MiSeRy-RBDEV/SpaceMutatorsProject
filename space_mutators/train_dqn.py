@@ -6,7 +6,7 @@ import time
 from .space_mutators_env import SpaceMutatorsEnv, ACTIONS
 from .dqn_agent import DQNAgent
 
-def train_dqn(num_episodes=3000, max_steps=2000, render=False):
+def train_dqn(num_episodes=1000, max_steps=1000, render=False):
     env = SpaceMutatorsEnv(render=render)
     state_dim = env.reset().shape[0]  # e.g. 7 from our example
     action_dim = len(ACTIONS)        # 4

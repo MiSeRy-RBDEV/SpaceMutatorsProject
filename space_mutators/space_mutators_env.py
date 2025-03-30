@@ -36,10 +36,10 @@ class SpaceMutatorsEnv:
             screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         
         # Basic environment settings
-        self.spawn_interval = 60
+        self.spawn_interval = 80
         self.spawn_timer = 0
         self.level = 1
-        self.max_levels = 3
+        self.max_levels = 10
 
         self._prev_player_x = None
 
@@ -176,7 +176,7 @@ class SpaceMutatorsEnv:
         # This is somewhat arbitrary, you'll want to refine.
 
         # Example:
-        reward += 1.00 * self.score
+        reward += 10.00 * self.score
         #reward -= 0.01
         reward -= 2.0 * self.escaped_enemies
 
@@ -185,11 +185,11 @@ class SpaceMutatorsEnv:
 
 
         #Prevent Standing Still
-        if movement < 1:
-            reward -= 1.0
+        if movement < 2:
+            reward -= 4.0
         # If the player hasn't moved horizontally at all
         if movement > 2:
-            reward += 0.5
+            reward += 0.2
 
         self._prev_player_x = current_x
         

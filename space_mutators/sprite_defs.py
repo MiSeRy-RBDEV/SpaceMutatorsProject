@@ -15,10 +15,10 @@ class EnemyChromosome:
         color_tint_gene=None
     ):
 
-        self.speed_gene = speed_gene if speed_gene is not None else random.randint(1, 5)
+        self.speed_gene = speed_gene if speed_gene is not None else random.randint(1, 2)
         self.health_gene = health_gene if health_gene is not None else random.randint(1, 3)
         self.bullet_speed_gene = bullet_speed_gene if bullet_speed_gene is not None else random.randint(5, 12)
-        self.sprite_scale_gene = sprite_scale_gene if sprite_scale_gene is not None else random.randint(50, 150)
+        self.sprite_scale_gene = sprite_scale_gene if sprite_scale_gene is not None else random.randint(80, 150)
         self.color_tint_gene = color_tint_gene if color_tint_gene is not None else random.randint(0, 255)
 
         # Track how "successful" or "fit" the enemy was
@@ -33,8 +33,8 @@ class EnemyChromosome:
         if random.random() < mutation_rate:
             self.bullet_speed_gene = max(1, self.bullet_speed_gene + random.choice([-2, -1, 1, 2]))
         if random.random() < mutation_rate:
-            # sprite_scale_gene in [10..200] to avoid extremes
-            self.sprite_scale_gene = max(10, min(200, self.sprite_scale_gene + random.choice([-10, -5, 5, 10])))
+            #sprite_scale_gene in [10..200] to avoid extremes
+            self.sprite_scale_gene = max(150, min(80, self.sprite_scale_gene + random.choice([-10, -5, 5, 10])))
         if random.random() < mutation_rate:
             # color_tint_gene in [0..255]
             shift = random.randint(-30, 30)
@@ -119,16 +119,31 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = random.randint(-100, -40)
 
         # Combine chromosome speed with the level
-        self.speed = self.chromosome.speed_gene + level
+        #self.speed = self.chromosome.speed_gene + level
+
+        # Instead of a single "speed", track x and y velocity separately:
+        # You can randomize them or base them on "level"
+        self.dx = random.choice([-1, 1]) * (random.randint(1, 2) + level)
+        self.dy = self.chromosome.speed_gene + level/4
 
         # For health, we can start with base 20, multiplied by health_gene
         self.health = 20 * self.chromosome.health_gene
 
     def update(self):
-        self.rect.y += self.speed
+        # Move according to velocities
+        self.rect.x += self.dx
+        self.rect.y += self.dy
+
+        # Bounce horizontally
+        if self.rect.left < 0:
+            self.rect.left = 0
+            self.dx = -self.dx  # reverse direction
+        elif self.rect.right > SCREEN_WIDTH:
+            self.rect.right = SCREEN_WIDTH
+            self.dx = -self.dx
 
         # Award some "travel fitness" for each update tick it stays alive
-        self.chromosome.add_fitness(self.speed)
+        self.chromosome.add_fitness(self.dy)
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y):

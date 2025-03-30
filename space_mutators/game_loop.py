@@ -4,6 +4,7 @@ import random
 from .settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK, WHITE, TOTAL_WIDTH
 from .sprite_defs import Player, Enemy, Bullet, EnemyChromosome
 from .utils import draw_text
+from .enemy_ai import EnemyCoordinatorNetwork  # <-- import our new AI class
 
 # 1) A global list to track average fitness over time.
 fitness_history = []
@@ -100,7 +101,7 @@ def game_loop(screen, clock, font_small, bg_img):
     global fitness_history
 
     level = 1
-    max_levels = 3
+    max_levels = 10
     player = Player()
     all_sprites = pygame.sprite.Group(player)
     enemies = pygame.sprite.Group()
@@ -110,9 +111,16 @@ def game_loop(screen, clock, font_small, bg_img):
     spawn_timer = 0
     escaped_enemies = 0
     max_escaped = 10
-    spawn_interval = 60
+    spawn_interval = 80
 
     died_chromosomes = []
+
+    # Increased Enemy in the Network 
+    ai_network = EnemyCoordinatorNetwork(
+        num_enemies=10,   # number of enemies the net can handle at once
+        input_size=2 + 2*10,  # input = 2 (player x/y) + 2*(for each of up to 10 enemies)
+        hidden_size=8
+    )
 
     # Clear fitness_history each new game session
     fitness_history = []
@@ -153,6 +161,25 @@ def game_loop(screen, clock, font_small, bg_img):
 
         pressed_keys = pygame.key.get_pressed()
         player.update(pressed_keys)
+                
+        # Collect positions
+        enemy_positions = [(e.rect.centerx, e.rect.centery) for e in enemies]
+        player_pos = (player.rect.centerx, player.rect.centery)
+
+        # -- AI Coordinator: produce movement deltas for each enemy --
+        # The order we pass them in is the order we apply the result.
+        deltas = ai_network.compute_actions(player_pos, enemy_positions)
+
+        # Now apply these deltas to each enemy
+        # If there are fewer than ai_network.num_enemies, we only read the first len(enemies) deltas
+        for i, enemy in enumerate(enemies):
+            if i < len(deltas):
+                dx, dy = deltas[i]
+                # dx, dy might be large or small, so clamp or scale them:
+                dx = max(-2, min(2, dx))  # clamp for demonstration
+                dy = max(-1, min(3, dy))  # clamp so enemies generally move downward
+                enemy.rect.x += dx
+                enemy.rect.y += dy
 
         # Check if enemies escaped
         for enemy in enemies.copy():
