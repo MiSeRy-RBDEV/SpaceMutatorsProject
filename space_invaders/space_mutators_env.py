@@ -20,10 +20,7 @@ ACTIONS = {0: "NONE", 1: "LEFT", 2: "RIGHT", 3: "SHOOT"}
 
 class SpaceMutatorsEnv:
     def __init__(self, render=False):
-        """
-        :param render: bool, if True we will show the pygame window,
-                       otherwise we'll run headless (faster for training).
-        """
+
         self.render_mode = render
         self.clock = None
         self.screen = None
@@ -49,9 +46,7 @@ class SpaceMutatorsEnv:
         self.reset()
 
     def reset(self):
-        """
-        Reset the environment to an initial state and return an initial observation.
-        """
+
         # If we had multiple levels or waves, we'd reset them here
         self.score = 0
         self.escaped_enemies = 0
@@ -83,11 +78,7 @@ class SpaceMutatorsEnv:
         self.enemies.add(enemy)
 
     def step(self, action):
-        """
-        Step the environment by one frame.
-        :param action: integer in [0..3], one of do nothing, left, right, shoot
-        :return: obs, reward, done, info
-        """
+
         # 1) Process action
         reward = 0.0
         self._handle_action(action)
@@ -114,9 +105,7 @@ class SpaceMutatorsEnv:
         return obs, reward, self.done, {}
 
     def _handle_action(self, action):
-        """
-        Apply the chosen action to the game state (move player, shoot).
-        """
+
         if action == 1:  # left
             self.player.rect.x -= self.player.speed
         elif action == 2:  # right
@@ -133,9 +122,7 @@ class SpaceMutatorsEnv:
             self.player.rect.right = SCREEN_WIDTH
 
     def _update(self):
-        """
-        Update all sprites, collisions, etc. Check for terminal conditions.
-        """
+
         # Update enemies and bullets
         self.enemies.update()
         self.bullets.update()
@@ -173,15 +160,6 @@ class SpaceMutatorsEnv:
             self._render()
 
     def _calculate_reward(self):
-        """
-        A simple reward shaping function.
-        Here we give:
-          +1 for each score increase
-          -0.1 each time step to encourage speed
-          -1 if the player lost health
-          -2 if an enemy escaped
-        You can refine or tune these constants for better learning.
-        """
         reward = 0.0
 
         current_x = self.player.rect.centerx
@@ -191,7 +169,6 @@ class SpaceMutatorsEnv:
         # But we've already updated 'score' in _update, so we compare old vs new
         # For simplicity, let's do incremental reward at collisions time, or keep track of previous self.score
 
-        # As a minimal approach, let's just do:
         #   +0.01 * (score) each step
         #   -0.01 each step (time penalty)
         #   -0.2 * escaped_enemies each step
@@ -223,9 +200,7 @@ class SpaceMutatorsEnv:
         return reward
 
     def _render(self):
-        """
-        Draw the game in the window if self.render_mode is True.
-        """
+
         self.screen.fill((0,0,0))
         self.all_sprites.draw(self.screen)
         # Could also draw the player's health bar if you like
@@ -234,15 +209,7 @@ class SpaceMutatorsEnv:
         self.clock.tick(FPS)
 
     def _get_observation(self):
-        """
-        Return a vector or array describing the game state.
-        The simplest approach: 
-          [player_x, player_health, #enemies, average_enemy_y, ...]
-        More advanced: 
-          a 2D matrix of the entire screen, or positions of each bullet, etc.
 
-        We do a minimal approach for demonstration.
-        """
         player_x = self.player.rect.centerx / float(SCREEN_WIDTH)
         player_health = self.player.health / 100.0
 

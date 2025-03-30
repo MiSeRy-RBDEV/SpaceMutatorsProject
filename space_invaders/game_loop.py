@@ -9,10 +9,6 @@ from .utils import draw_text
 fitness_history = []
 
 def draw_chromosome_stats(screen, x_offset, y_offset, width, height, font, chromosomes):
-    """
-    Already defined in your code: draws a bar chart of gene averages.
-    We'll leave it as is.
-    """
     # Example implementation from your existing code:
     pygame.draw.rect(screen, (30, 30, 30), (x_offset, y_offset, width, height))
 
@@ -22,7 +18,7 @@ def draw_chromosome_stats(screen, x_offset, y_offset, width, height, font, chrom
 
     avg_speed = sum(c.speed_gene for c in chromosomes) / len(chromosomes)
     avg_health = sum(c.health_gene for c in chromosomes) / len(chromosomes)
-    avg_bullet = sum(c.bullet_speed_gene for c in chromosomes) / len(chromosomes)
+    avg_bullet = sum(c.bullet_speed_gene for c in chromosomes) / len(chromosomes) #No Bullets for Enemies at the moment
     avg_scale = sum(c.sprite_scale_gene for c in chromosomes) / len(chromosomes)
     avg_color = sum(c.color_tint_gene for c in chromosomes) / len(chromosomes)
 
@@ -61,10 +57,6 @@ def draw_chromosome_stats(screen, x_offset, y_offset, width, height, font, chrom
         draw_text(f"{label}: {avg_val:.1f}", font, WHITE, screen, x_offset + width // 2, bar_top + bar_height // 2)
 
 def draw_fitness_chart(screen, x_offset, y_offset, width, height, font):
-    """
-    2) A new function that draws a simple line chart of fitness_history.
-    Each entry in fitness_history is an average fitness for one frame (or wave).
-    """
     # Clear background for the chart region
     chart_rect = pygame.Rect(x_offset, y_offset, width, height)
     pygame.draw.rect(screen, (20, 20, 20), chart_rect)
@@ -87,10 +79,6 @@ def draw_fitness_chart(screen, x_offset, y_offset, width, height, font):
 
     # We invert y because top is smaller y
     def transform(i, val):
-        """
-        i = index, val = fitness
-        Return (px, py) on the chart
-        """
         px = x_offset + i * x_step
         # rescale val -> [0..1]
         fraction = (val - min_val) / (max_val - min_val)

@@ -3,9 +3,9 @@ import random
 from .settings import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE, GREEN, RED, PLAYER_SPRITE, ENEMY_SPRITES
 
 class EnemyChromosome:
-    """
-    A container for enemy 'genes' plus logic for mutation, crossover, fitness, etc.
-    """
+
+    # A container for enemy 'genes' plus logic for mutation, crossover, fitness, etc.
+
     def __init__(
         self,
         speed_gene=None,
@@ -14,16 +14,7 @@ class EnemyChromosome:
         sprite_scale_gene=None,
         color_tint_gene=None
     ):
-        """
-        Randomly initialize each gene if it's not provided.
-        
-        For example:
-        - speed_gene: [1..5]
-        - health_gene: [1..3] (multiplier for base health)
-        - bullet_speed_gene: [5..12]
-        - sprite_scale_gene: [50..150]  (percentage scale)
-        - color_tint_gene: [0..255]    (simple color overlay value)
-        """
+
         self.speed_gene = speed_gene if speed_gene is not None else random.randint(1, 5)
         self.health_gene = health_gene if health_gene is not None else random.randint(1, 3)
         self.bullet_speed_gene = bullet_speed_gene if bullet_speed_gene is not None else random.randint(5, 12)
@@ -34,9 +25,7 @@ class EnemyChromosome:
         self.fitness = 0
 
     def mutate(self, mutation_rate=0.1):
-        """
-        Example mutation: with some probability, each gene is tweaked slightly.
-        """
+
         if random.random() < mutation_rate:
             self.speed_gene = max(1, self.speed_gene + random.choice([-1, 1]))
         if random.random() < mutation_rate:
@@ -53,10 +42,7 @@ class EnemyChromosome:
 
     @staticmethod
     def crossover(parentA, parentB):
-        """
-        Simple uniform crossover:
-        For each gene, pick from either parent with 50% chance.
-        """
+
         child = EnemyChromosome(
             speed_gene = parentA.speed_gene if random.random() < 0.5 else parentB.speed_gene,
             health_gene = parentA.health_gene if random.random() < 0.5 else parentB.health_gene,
@@ -67,7 +53,7 @@ class EnemyChromosome:
         return child
 
     def add_fitness(self, amount):
-        """Add a certain amount to this chromosome's fitness."""
+
         self.fitness += amount
 
     def __repr__(self):

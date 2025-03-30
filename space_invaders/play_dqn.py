@@ -5,10 +5,7 @@ from .space_mutators_env import SpaceMutatorsEnv, ACTIONS
 from .dqn_agent import DQNAgent
 
 def play_dqn(model_path="dqn_model.pth"):
-    """
-    Loads a trained DQN model and plays the game in render mode,
-    letting the model pick actions instead of a human player.
-    """
+
     # 1. Create environment with a window so we can see the AI play.
     env = SpaceMutatorsEnv(render=True)
     state_dim = env.reset().shape[0]
