@@ -57,6 +57,13 @@ def draw_chromosome_stats(screen, x_offset, y_offset, width, height, font, chrom
         # Draw label text
         draw_text(f"{label}: {avg_val:.1f}", font, WHITE, screen, x_offset + width // 2, bar_top + bar_height // 2)
 
+
+def evaluate_fitness(score, escaped_enemies, max_escaped):
+    # Evaluation of fitness
+    fitness = score - 10 * escaped_enemies
+    return fitness
+
+
 def draw_fitness_chart(screen, x_offset, y_offset, width, height, font):
     # Clear background for the chart region
     chart_rect = pygame.Rect(x_offset, y_offset, width, height)
@@ -134,6 +141,13 @@ def game_loop(screen, clock, font_small, bg_img):
 
         # End conditions
         if player.health <= 0 or escaped_enemies >= max_escaped:
+            # At the end of a level or when the game is over, evaluate fitness.
+            fitness = evaluate_fitness(score, escaped_enemies, max_escaped)
+            print(f"Level {level} ended. Fitness: {fitness}")
+            # If fitness is lower than threshold, evolve the network.
+            if fitness < fitness_threshold:
+                print("Mutating network...")
+                ai_network.mutate(mutation_rate=0.1, mutation_strength=0.5)
             return
         if score >= 20 * level and level < max_levels:
             level += 1
@@ -186,6 +200,9 @@ def game_loop(screen, clock, font_small, bg_img):
         # The order we pass them in is the order we apply the result.
         deltas = ai_network.compute_actions(player_pos, enemy_positions)
 
+        # Set a threshold for fitness (you can adjust this value)
+        fitness_threshold = 50
+
         # Now apply these deltas to each enemy
         # If there are fewer than ai_network.num_enemies, we only read the first len(enemies) deltas
         for i, enemy in enumerate(enemies):
@@ -236,6 +253,17 @@ def game_loop(screen, clock, font_small, bg_img):
         draw_text(f"Level: {level}", font_small, WHITE, screen, SCREEN_WIDTH - 60, 20)
         draw_text(f"Escaped: {escaped_enemies}/{max_escaped}", font_small, WHITE, screen, SCREEN_WIDTH // 2, 20)
 
+        # Adaptive Difficulty alignment
+        if score >= 50 and player.health >= 80:
+            difficulty_feedback = "Hard"
+        elif score >= 20 and player.health >= 50:
+            difficulty_feedback = "Normal"
+        else:
+            difficulty_feedback = "Easy"
+
+        # Draw the adaptive difficulty feedback near the bottom center of the screen
+        draw_text(f"Adaptive Difficulty: {difficulty_feedback}", font_small, WHITE, screen, SCREEN_WIDTH // 2, 90)
+
         # ==============================
         # == Right side: charts & stats
         # ==============================
@@ -261,5 +289,6 @@ def game_loop(screen, clock, font_small, bg_img):
         draw_fitness_chart(screen, chart_x, chart_y + half_h, chart_w, half_h, font_small)
 
         screen.blit(heatmap_surface, (SCREEN_WIDTH+CHART_WIDTH, 0))  # Heatmap on the right
+
 
         pygame.display.flip()
