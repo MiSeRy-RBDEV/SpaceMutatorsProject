@@ -83,7 +83,7 @@ class Player(pygame.sprite.Sprite):
         bar_length = 100
         bar_height = 10
         fill = (self.health / self.max_health) * bar_length
-        # Draw the bar above the player so it’s visible:
+        # Draw the bar above the player so itï¿½s visible:
         outline_rect = pygame.Rect(self.rect.centerx - bar_length // 2, self.rect.top - 20, bar_length, bar_height)
         fill_rect = pygame.Rect(self.rect.centerx - bar_length // 2, self.rect.top - 20, fill, bar_height)
         pygame.draw.rect(surface, RED, outline_rect)

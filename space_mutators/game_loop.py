@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-from .settings import SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK, WHITE, TOTAL_WIDTH
+from .settings import HEATMAP_WIDTH, CHART_WIDTH, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BLACK, WHITE, TOTAL_WIDTH
 from .sprite_defs import Player, Enemy, Bullet, EnemyChromosome
 from .utils import draw_text
 from .enemy_ai import EnemyCoordinatorNetwork  # <-- import our new AI class
@@ -122,6 +122,10 @@ def game_loop(screen, clock, font_small, bg_img):
         hidden_size=8
     )
 
+    # Initialize the heatmap surface (150px wide strip on the right)
+    heatmap_surface = pygame.Surface((HEATMAP_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+    heatmap_surface.fill((0, 0, 0, 0))  # start fully transparent
+
     # Clear fitness_history each new game session
     fitness_history = []
 
@@ -161,6 +165,18 @@ def game_loop(screen, clock, font_small, bg_img):
 
         pressed_keys = pygame.key.get_pressed()
         player.update(pressed_keys)
+
+        # --- Update Heatmap ---
+        # Fade previous frame data by overlaying a semi-transparent black rectangle
+        fade = pygame.Surface((HEATMAP_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        fade.fill((0, 0, 0, 25))
+        heatmap_surface.blit(fade, (0, 0))
+        # Plot enemy positions (scale enemy x from game area to heatmap width)
+        for enemy in enemies:
+            # enemy.rect.centerx is between 0 and GAME_WIDTH (600)
+            heatmap_x = int(enemy.rect.centerx * (HEATMAP_WIDTH / SCREEN_WIDTH))
+            heatmap_y = enemy.rect.centery
+            pygame.draw.circle(heatmap_surface, (255, 0, 0, 150), (heatmap_x, heatmap_y), 5)
                 
         # Collect positions
         enemy_positions = [(e.rect.centerx, e.rect.centery) for e in enemies]
@@ -225,7 +241,7 @@ def game_loop(screen, clock, font_small, bg_img):
         # ==============================
         chart_x = SCREEN_WIDTH
         chart_y = 0
-        chart_w = TOTAL_WIDTH - SCREEN_WIDTH
+        chart_w = TOTAL_WIDTH - SCREEN_WIDTH - HEATMAP_WIDTH
         chart_h = SCREEN_HEIGHT
 
         # Top half for gene stats
@@ -243,5 +259,7 @@ def game_loop(screen, clock, font_small, bg_img):
         fitness_history.append(avg_fitness)
         # 3) Draw the line chart
         draw_fitness_chart(screen, chart_x, chart_y + half_h, chart_w, half_h, font_small)
+
+        screen.blit(heatmap_surface, (SCREEN_WIDTH+CHART_WIDTH, 0))  # Heatmap on the right
 
         pygame.display.flip()

@@ -1,6 +1,6 @@
 import pygame
 import sys
-from .settings import TOTAL_WIDTH, SCREEN_HEIGHT, FPS, BACKGROUND_IMAGE, BACKGROUND_MUSIC
+from .settings import TOTAL_WIDTH, SCREEN_WIDTH, SCREEN_HEIGHT, FPS, BACKGROUND_IMAGE, BACKGROUND_MUSIC
 from .menu import main_menu
 from .game_loop import game_loop
 
@@ -12,7 +12,7 @@ def main():
 
     try:
         bg_img = pygame.image.load(BACKGROUND_IMAGE).convert()
-        bg_img = pygame.transform.scale(bg_img, (TOTAL_WIDTH, SCREEN_HEIGHT))
+        bg_img = pygame.transform.scale(bg_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
     except:
         bg_img = None
 

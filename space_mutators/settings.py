@@ -13,8 +13,11 @@ RED = (255, 0, 0)
 # Additional width for charts on the right
 CHART_WIDTH = 300
 
+# Additional heatmap width for charts on the right
+HEATMAP_WIDTH = 300
+
 # The total screen width for the entire window
-TOTAL_WIDTH = SCREEN_WIDTH + CHART_WIDTH
+TOTAL_WIDTH = SCREEN_WIDTH + CHART_WIDTH + HEATMAP_WIDTH
 
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")
 PLAYER_SPRITE = os.path.join(ASSETS_DIR, "player.png")
